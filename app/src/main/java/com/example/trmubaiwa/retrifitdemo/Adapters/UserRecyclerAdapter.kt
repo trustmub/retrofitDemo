@@ -1,5 +1,7 @@
 package com.example.trmubaiwa.retrifitdemo.Adapters
 
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,12 +14,10 @@ import com.example.trmubaiwa.retrifitdemo.R
 
 class UserRecyclerAdapter() : RecyclerView.Adapter<UserRecyclerAdapter.UserViewHolder>() {
 
-    private lateinit var users: List<UsersModel>
+    private lateinit var users: LiveData<List<UsersModel>>
 
-    constructor(userList: List<UsersModel>) : this() {
-        this.users = userList.sortedBy {
-            it.name
-        }
+    constructor(userList: LiveData<List<UsersModel>>) : this() {
+        this.users = userList
     }
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): UserViewHolder? {
@@ -28,14 +28,14 @@ class UserRecyclerAdapter() : RecyclerView.Adapter<UserRecyclerAdapter.UserViewH
     }
 
     override fun getItemCount(): Int {
-        Log.d("State", "the number of items ${users.count()}")
-        return users.count()
+        Log.d("State", "the number of items ${users.value!!.count()}")
+        return users.value!!.count()
     }
 
     override fun onBindViewHolder(holder: UserViewHolder?, position: Int) {
         holder?.let {
-            it.username.text = users[position].name
-            it.company.text = users[position].company.name
+            it.username.text = users.value!![position].name
+            it.company.text = users.value!![position].company.name
         }
         Log.d("State", "the values here are ${holder?.username}")
         Log.d("State", "the values here are ${holder?.company}")

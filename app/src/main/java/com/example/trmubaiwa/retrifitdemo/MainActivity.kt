@@ -6,20 +6,20 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.AttributeSet
 import android.util.Log
 import android.view.View
 import com.example.trmubaiwa.retrifitdemo.Adapters.UserRecyclerAdapter
 import com.example.trmubaiwa.retrifitdemo.Models.UsersModel
 import com.example.trmubaiwa.retrifitdemo.Services.UserAPI
+import com.example.trmubaiwa.retrifitdemo.ViewModel.UserViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.Appcompat
+import org.koin.android.architecture.ext.viewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScroller
-import java.util.zip.Inflater
 
 
 class MainActivity : AppCompatActivity() {
@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: UserRecyclerAdapter
     private var userList: List<UsersModel>? = null
     private lateinit var serviceInterface: UserAPI
+    private val userViewModel by viewModel<UserViewModel>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +42,7 @@ class MainActivity : AppCompatActivity() {
 
         layoutManager = LinearLayoutManager(this)
         client_list.layoutManager = layoutManager
-        serviceInterface = RetrofitService.create()
+        serviceInterface = App.create()
         searchView.onFocusChangeListener
 
         makeCall()
@@ -57,8 +58,11 @@ class MainActivity : AppCompatActivity() {
 
         if (checkInternetAvailability()) {
             Log.d("State", " there is network and waiting for the call to finish")
-            val call = serviceInterface.getUsers()
-            call.enqueue(UserCallback())
+//            val call = serviceInterface.getUsers()
+            adapter = UserRecyclerAdapter(userViewModel.getUserList())
+            client_list.visibility = View.VISIBLE
+
+//            call.enqueue(UserCallback())
 
         } else {
             client_list.visibility = View.GONE
@@ -90,7 +94,7 @@ class MainActivity : AppCompatActivity() {
 
             response?.notNull {
                 userList = it.body()
-                adapter = UserRecyclerAdapter(userList!!)
+                adapter = UserRecyclerAdapter(userViewModel.getUserList())
                 client_list.visibility = View.VISIBLE
 
             }
